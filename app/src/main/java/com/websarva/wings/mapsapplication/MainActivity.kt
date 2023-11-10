@@ -163,7 +163,7 @@ fun launchPickMedia(pickMedia: ActivityResultLauncher<PickVisualMediaRequest>){
 }
 
 
-// ChatGPT
+// ChatGPT やっぱりだめだった
 @Composable
 fun MyScreen() {
     // 画像のUriを保持するためのState
