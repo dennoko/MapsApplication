@@ -44,37 +44,40 @@ class MainActivity : ComponentActivity() {
 
 //        val bitmappedPicture = BitmapDescriptorFactory.fromResource(R.drawable.singapore)
 //        val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.singapore)
+
         val context: Context = applicationContext
 
-        val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if(uri != null) {
-                val bitmap = getBitmapFromUri(uri, context)
-                setContent {
-                    MapsApplicationTheme {
-                        // A surface container using the 'background' color from the theme
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            if (bitmap != null) {
-                                Greeting(bitmap)//
-                            }
-                        }
-                    }
-                    // Compose画面に切り替えて画像を表示
-//                    DisplayImageFromUri(uri = uri.toString())
-                }
-            } else {
-                Log.d("hoge", "uri: null")
-            }
-        }
 //        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        launchPickMedia(pickMedia)//写真選択画面の起動
+//        launchPickMedia(pickMedia)//写真選択画面の起動
+
+        setContent {
+            MapsApplicationTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Greeting(context)
+                }
+            }
+            // Compose画面に切り替えて画像を表示
+//                    DisplayImageFromUri(uri = uri.toString())
+        }
     }
 }
 
 @Composable
-fun Greeting(originalBitmap: Bitmap) {
+fun Greeting(context: Context) {
+
+
+    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if(uri != null) {
+            val bitmap = getBitmapFromUri(uri, context)
+        } else {
+            Log.d("hoge", "uri: null")
+        }
+    }
+
     val singapore = LatLng(1.35, 103.87)
 
     val cameraPositionState = rememberCameraPositionState {
@@ -98,7 +101,10 @@ fun Greeting(originalBitmap: Bitmap) {
             title = "シンガポール",
             snippet = "ここはシンガポール",
             icon = resizedIcon,
-//            onInfoWindowClick = launchPickmedia ウィンドウクリック時の動作。ここで写真選択画面を起動したい
+            onInfoWindowClick = {
+                Log.d("hoge", "ウィンドウクリック")
+                launchPickmedia
+            } // ウィンドウクリック時の動作。ここで写真選択画面を起動したい
         )
 
 
