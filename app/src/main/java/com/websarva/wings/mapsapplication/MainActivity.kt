@@ -98,7 +98,7 @@ fun Greeting(originalBitmap: Bitmap) {
             title = "シンガポール",
             snippet = "ここはシンガポール",
             icon = resizedIcon,
-//            onInfoWindowClick = launchPickmedia ウィンドウクリック時の動作。ここで写真選択画面を起動したい
+            onInfoWindowClick = {launchPickmedia }//ウィンドウクリック時の動作。ここで写真選択画面を起動したい
         )
 
 
