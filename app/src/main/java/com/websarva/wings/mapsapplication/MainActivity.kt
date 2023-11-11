@@ -7,20 +7,29 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapsInitializer
@@ -46,7 +55,7 @@ class MainActivity : ComponentActivity() {
 //        val originalBitmap = BitmapFactory.decodeResource(resources, R.drawable.singapore)
         val context: Context = applicationContext
 
-        val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             if(uri != null) {
                 val bitmap = getBitmapFromUri(uri, context)
                 setContent {
@@ -80,28 +89,43 @@ fun Greeting(originalBitmap: Bitmap) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(singapore, 10f)
     }
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
-    ) {
-        var zoom by remember { mutableStateOf(cameraPositionState.position.zoom.toInt()) }
-        zoom = cameraPositionState.position.zoom.toInt()
-        Log.d("zoom", zoom.toString())
-        val newWidth = 10*zoom// 新しい幅
-        val newHeight = 10*zoom // 新しい高さ
-        Log.d("width", newWidth.toString())
-        val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false)
-        val resizedIcon = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
-        val launchPickmedia = false
-        Marker(
-            state = MarkerState(position = singapore),
-            title = "シンガポール",
-            snippet = "ここはシンガポール",
-            icon = resizedIcon,
+    Column {
+        GoogleMap(
+            modifier = Modifier.size(300.dp).fillMaxWidth(),
+            cameraPositionState = cameraPositionState
+        ) {
+            var zoom by remember { mutableStateOf(cameraPositionState.position.zoom.toInt()) }
+            zoom = cameraPositionState.position.zoom.toInt()
+            Log.d("zoom", zoom.toString())
+            val newWidth = 10*zoom// 新しい幅
+            val newHeight = 10*zoom // 新しい高さ
+            Log.d("width", newWidth.toString())
+            val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false)
+            val resizedIcon = BitmapDescriptorFactory.fromBitmap(resizedBitmap)
+            val launchPickmedia = false
+            Marker(
+                state = MarkerState(position = singapore),
+                title = "シンガポール",
+                snippet = "ここはシンガポール",
+                icon = resizedIcon,
 //            onInfoWindowClick = launchPickmedia ウィンドウクリック時の動作。ここで写真選択画面を起動したい
-        )
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // 画像のUriを保持するためのState
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
 
+        val getContent = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            // 画像が選択されたときの処理
+            if (uri != null) {
+                imageUri = uri
+            }
+        }
+
+        Button(onClick = { getContent.launch("image/*") }) {
+            Text(text = "画像を選択")
+        }
     }
 }
 
